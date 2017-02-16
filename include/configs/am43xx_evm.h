@@ -85,7 +85,7 @@
 
 #define CONFIG_ENV_IS_IN_FAT
 #define FAT_ENV_INTERFACE		"mmc"
-#define FAT_ENV_DEVICE_AND_PART		"0:1"
+#define FAT_ENV_DEVICE_AND_PART		"1:1"
 #define FAT_ENV_FILE			"uboot.env"
 #define CONFIG_FAT_WRITE
 
@@ -161,13 +161,13 @@
 #define CONFIG_DFU_MMC
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \
-	"boot part 0 1;" \
-	"rootfs part 0 2;" \
-	"MLO fat 0 1;" \
-	"spl-os-args fat 0 1;" \
-	"spl-os-image fat 0 1;" \
-	"u-boot.img fat 0 1;" \
-	"uEnv.txt fat 0 1\0"
+	"boot part 1 1;" \
+	"rootfs part 1 2;" \
+	"MLO fat 1 1;" \
+	"spl-os-args fat 1 1;" \
+	"spl-os-image fat 1 1;" \
+	"u-boot.img fat 1 1;" \
+	"uEnv.txt fat 1 1\0"
 
 #define DFU_ALT_INFO_EMMC \
 	"dfu_alt_info_emmc=" \
@@ -246,8 +246,8 @@
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \
 	"fdtfile=undefined\0" \
-	"bootpart=0:2\0" \
-	"bootdir=/boot\0" \
+	"bootpart=0:1\0" \
+	"bootdir=\0" \
 	"bootfile=zImage\0" \
 	"console=ttyO0,115200n8\0" \
 	"partitions=" \

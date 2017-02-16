@@ -321,22 +321,10 @@ void __maybe_unused set_board_info_env(char *name)
 	char *unknown = "unknown";
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
 
-	if (name)
-		setenv("board_name", name);
-	else if (ep->name)
-		setenv("board_name", ep->name);
-	else
-		setenv("board_name", unknown);
-
-	if (ep->version)
-		setenv("board_rev", ep->version);
-	else
-		setenv("board_rev", unknown);
-
-	if (ep->serial)
-		setenv("board_serial", ep->serial);
-	else
-		setenv("board_serial", unknown);
+	/* Setting MYiR infomation, MYiR */		
+	setenv("board_name", "ricoboard");
+	setenv("board_rev", "1.0");
+	setenv("board_serial", "000000");
 }
 
 static u64 mac_to_u64(u8 mac[6])

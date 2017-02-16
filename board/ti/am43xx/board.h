@@ -27,6 +27,12 @@ static inline int board_is_gpevm(void)
 	return board_ti_is("AM43__GP");
 }
 
+static inline int board_is_rico(void)
+{
+	// return board_ti_is("AM43__GP");
+	return true;
+}
+
 static inline int board_is_sk(void)
 {
 	return board_ti_is("AM43__SK");

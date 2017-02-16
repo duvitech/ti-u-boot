@@ -32,6 +32,8 @@
 #include <dwc3-omap-uboot.h>
 #include <ti-usb-phy-uboot.h>
 
+#include "myir_header.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
@@ -342,13 +344,12 @@ const struct dpll_params *get_dpll_ddr_params(void)
 
 	if (board_is_eposevm())
 		return &epos_evm_dpll_ddr[ind];
-	else if (board_is_evm() || board_is_sk())
+	else if (board_is_evm() || board_is_sk() || board_is_rico())
 		return &gp_evm_dpll_ddr;
 	else if (board_is_idk())
 		return &idk_dpll_ddr;
 
-	printf(" Board '%s' not supported\n", board_ti_get_name());
-	return NULL;
+	return &gp_evm_dpll_ddr;
 }
 
 
@@ -538,6 +539,7 @@ enum {
 	RTC_BOARD_EVM12,
 	RTC_BOARD_GPEVM,
 	RTC_BOARD_SK,
+	RTC_BOARD_RICO,
 };
 
 /*
@@ -562,6 +564,10 @@ void rtc_only_update_board_type(u32 btype)
 		name = "AM43__GP";
 		rev = "1.2";
 		break;
+	case RTC_BOARD_RICO:
+		name = "AM43__GP";
+		rev = "1.0";
+		break;
 	case RTC_BOARD_GPEVM:
 		name = "AM43__GP";
 		break;
@@ -582,10 +588,12 @@ u32 rtc_only_get_board_type(void)
 		return RTC_BOARD_EVM12;
 	else if (board_is_gpevm())
 		return RTC_BOARD_GPEVM;
+	else if (board_is_rico())
+		return RTC_BOARD_RICO;
 	else if (board_is_sk())
 		return RTC_BOARD_SK;
 
-	return 0;
+	return RTC_BOARD_RICO;
 }
 
 void sdram_init(void)
@@ -606,6 +614,10 @@ void sdram_init(void)
 		config_ddr(0, &ioregs_ddr3, NULL, NULL,
 			   &ddr3_emif_regs_400Mhz_beta, 0);
 	} else if (board_is_evm()) {
+		enable_vtt_regulator();
+		config_ddr(0, &ioregs_ddr3, NULL, NULL,
+			   &ddr3_emif_regs_400Mhz, 0);
+	} else if (board_is_rico()) {
 		enable_vtt_regulator();
 		config_ddr(0, &ioregs_ddr3, NULL, NULL,
 			   &ddr3_emif_regs_400Mhz, 0);
@@ -688,13 +700,6 @@ int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info_env(NULL);
-
-	/*
-	 * Default FIT boot on HS devices. Non FIT images are not allowed
-	 * on HS devices.
-	 */
-	if (get_device_type() == HS_DEVICE)
-		setenv("boot_fit", "1");
 #endif
 	return 0;
 }
@@ -951,6 +956,8 @@ int board_fit_config_name_match(const char *name)
 	else if (board_is_eposevm() && !strcmp(name, "am43x-epos-evm"))
 		return 0;
 	else if (board_is_idk() && !strcmp(name, "am437x-idk-evm"))
+		return 0;
+	else if (board_is_rico() && !strcmp(name, "am437x-gp-evm"))
 		return 0;
 	else
 		return -1;

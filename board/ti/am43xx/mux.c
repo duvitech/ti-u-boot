@@ -63,16 +63,47 @@ static struct module_pin_mux mmc0_pin_mux[] = {
 	{-1},
 };
 
+/* Added by JBO for mmc1 */
+static struct module_pin_mux mmc1_pin_mux[] = {
+	{OFFSET(gpmc_csn1), (MODE(2) | PULLUDDIS | RXACTIVE)},
+	{OFFSET(gpmc_csn2), (MODE(2) | PULLUP_EN | RXACTIVE)},
+	{OFFSET(gpmc_ad0),	(MODE(1) | PULLUP_EN | RXACTIVE)},	/* NAND AD0 */
+	{OFFSET(gpmc_ad1),	(MODE(1) | PULLUP_EN | RXACTIVE)},	/* NAND AD1 */
+	{OFFSET(gpmc_ad2),	(MODE(1) | PULLUP_EN | RXACTIVE)},	/* NAND AD2 */
+	{OFFSET(gpmc_ad3),	(MODE(1) | PULLUP_EN | RXACTIVE)},	/* NAND AD3 */
+	{OFFSET(gpmc_ad4),	(MODE(1) | PULLUP_EN | RXACTIVE)},	/* NAND AD4 */
+	{OFFSET(gpmc_ad5),	(MODE(1) | PULLUP_EN | RXACTIVE)},	/* NAND AD5 */
+	{OFFSET(gpmc_ad6),	(MODE(1) | PULLUP_EN | RXACTIVE)},	/* NAND AD6 */
+	{OFFSET(gpmc_ad7),	(MODE(1) | PULLUP_EN | RXACTIVE)},	/* NAND AD7 */
+	{-1},
+};
+
+/* Clkout pin mux, MYiR */
+static struct module_pin_mux clkout_pin_mux[] = {
+	{0x800 + 0x270, (MODE(3) | PULLUP_EN | RXACTIVE)},
+	{0x800 + 0x274, (MODE(3) | PULLUP_EN | RXACTIVE)},
+	{-1},
+};
+
 static struct module_pin_mux i2c0_pin_mux[] = {
 	{OFFSET(i2c0_sda), (MODE(0) | PULLUP_EN | RXACTIVE | SLEWCTRL)},
 	{OFFSET(i2c0_scl), (MODE(0) | PULLUP_EN | RXACTIVE | SLEWCTRL)},
 	{-1},
 };
 
-static struct module_pin_mux gpio5_7_pin_mux[] = {
-	{OFFSET(spi0_cs0), (MODE(7) | PULLUP_EN)},	/* GPIO5_7 */
+/* I2C1 pin mux, MYiR */
+static struct module_pin_mux i2c1_pin_mux[] = {
+	{0x800 + 0x240, (MODE(1) | PULLUP_EN | RXACTIVE | SLEWCTRL)}, /* i2c1_scl */
+	{0x800 + 0x248, (MODE(1) | PULLUP_EN | RXACTIVE | SLEWCTRL)}, /* i2c1_sda */
 	{-1},
 };
+
+/* LCD backlight pin mux, MYiR */
+static struct module_pin_mux lcd_bl_mux[] = {
+    {0x800 + 0x164, (MODE(7))}, /* LCD backlight control */
+    {-1},
+};
+
 
 #ifdef CONFIG_NAND
 static struct module_pin_mux nand_pin_mux[] = {
@@ -105,7 +136,7 @@ static struct module_pin_mux nand_pin_mux[] = {
 };
 #endif
 
-static __maybe_unused struct module_pin_mux qspi_pin_mux[] = {
+static struct module_pin_mux qspi_pin_mux[] = {
 	{OFFSET(gpmc_csn0), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_CS0 */
 	{OFFSET(gpmc_csn3), (MODE(2) | PULLUP_EN | RXACTIVE)}, /* QSPI_CLK */
 	{OFFSET(gpmc_advn_ale), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_D0 */
@@ -123,11 +154,11 @@ void enable_uart0_pin_mux(void)
 void enable_board_pin_mux(void)
 {
 	configure_module_pin_mux(mmc0_pin_mux);
-	configure_module_pin_mux(i2c0_pin_mux);
+	configure_module_pin_mux(mmc1_pin_mux); /* Added by MYiR */
+	configure_module_pin_mux(clkout_pin_mux); /* Added by MYiR */
 	configure_module_pin_mux(mdio_pin_mux);
 
 	if (board_is_evm()) {
-		configure_module_pin_mux(gpio5_7_pin_mux);
 		configure_module_pin_mux(rgmii1_pin_mux);
 #if defined(CONFIG_NAND)
 		configure_module_pin_mux(nand_pin_mux);
@@ -152,3 +183,16 @@ void enable_i2c0_pin_mux(void)
 {
 	configure_module_pin_mux(i2c0_pin_mux);
 }
+
+/* I2C1 pinmux configure, MYiR */
+void enable_i2c1_pin_mux(void)
+{
+	configure_module_pin_mux(i2c1_pin_mux);
+}
+
+/* LCD backlight pinmux configure, MYiR */
+void enable_lcdbl_pin_mux(void)
+{
+	configure_module_pin_mux(lcd_bl_mux);
+}
+
