@@ -631,6 +631,41 @@ void sdram_init(void)
 }
 #endif
 
+/* Add by JBO for CLKOUT1 */
+#define CTRL_STS             0x44E10040
+#define SYSBOOT_17_OFFSET    (1 << 25)
+#define PRCM_CM_CLKOUT1_CTRL 0x44DF4100
+#define CLKOUT1_EN           (1 << 23)
+#define CLKOUT1_32KSEL       (1 << 24)
+#define CLKOUT1_SEL0_DIV_CLR (~(0x3 << 20))
+#define CLKOUT1_SEL0_DIV_0   (0x0 << 20)
+#define CLKOUT1_SEL0_DIV_1   (0x1 << 20)
+#define CLKOUT1_SEL0_DIV_2   (0x2 << 20)
+#define CLKOUT1_SOURCE_CLR   (~(0X3 << 16))
+#define CLKOUT1_SOURCE_0     (0 << 16) // Master OSC
+#define CLKOUT1_SOURCE_1     (1 << 16) // 32kHz clock source
+
+static void clkout1_setup(void)
+{
+	int clkout1_ctrl, ctrl_sts;
+
+	clkout1_ctrl = readl(PRCM_CM_CLKOUT1_CTRL);
+	ctrl_sts = readl(CTRL_STS);
+
+	ctrl_sts |= SYSBOOT_17_OFFSET;
+
+	clkout1_ctrl |= CLKOUT1_EN;
+	clkout1_ctrl &= CLKOUT1_SEL0_DIV_CLR;
+	clkout1_ctrl |= CLKOUT1_SEL0_DIV_1;
+	clkout1_ctrl &= CLKOUT1_SOURCE_CLR;
+	clkout1_ctrl |= CLKOUT1_SOURCE_0;
+
+	writel(ctrl_sts, CTRL_STS);
+	writel(clkout1_ctrl, PRCM_CM_CLKOUT1_CTRL);
+
+	ctrl_sts = readl(CTRL_STS);
+}
+
 /* setup board specific PMIC */
 int power_init_board(void)
 {
@@ -691,6 +726,9 @@ int board_init(void)
 	writel(modena_init0_bw_fractional, &bwlimiter->modena_init0_bw_fractional);
 	writel(modena_init0_bw_integer, &bwlimiter->modena_init0_bw_integer);
 	writel(modena_init0_watermark_0, &bwlimiter->modena_init0_watermark_0);
+
+	/* Clkout1 setting, MYiR */
+	clkout1_setup();
 
 	return 0;
 }
